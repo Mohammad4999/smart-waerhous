@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المخزن الذكي - واجهة التحكم</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="welcomeScreen" class="screen active">
+        <header>
+            <h1><span class="icon">📦</span> المخزن الذكي</h1>
+            <p>واجهة محاكاة أتمتة المستودعات باستخدام Arduino</p>
+        </header>
+        <div class="button-container">
+            <button id="startNewBtn" class="btn btn-primary"><span class="icon">✨</span> بدء عملية جديدة</button>
+            <button id="viewHistoryBtn" class="btn btn-secondary"><span class="icon">📜</span> عرض سجل العمليات</button>
+            </div>
+        <footer>
+            <p>تصميم ومحاكاة بواسطة الذكاء الاصطناعي</p>
+        </footer>
+    </div>
+
+    <div id="operationScreen" class="screen">
+        <form id="operationForm">
+            <div class="form-step active-step" data-step="1">
+                <h2><span class="icon">👤</span> الخطوة 1: معلومات الزبون</h2>
+                <div class="form-group">
+                    <label for="customerName">اسم الزبون:</label>
+                    <input type="text" id="customerName" name="customerName" required placeholder="أدخل اسم الزبون">
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">رقم الهاتف:</label>
+                    <input type="tel" id="customerPhone" name="customerPhone" placeholder="أدخل رقم الهاتف (اختياري)">
+                </div>
+                <div class="navigation-buttons">
+                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="2">
+                <h2><span class="icon">↔️</span> الخطوة 2: حدد نوع العملية</h2>
+                <div class="form-group radio-group">
+                    <label>
+                        <input type="radio" name="actionType" value="input" required>
+                        <span class="icon">📥</span> إدخال بضاعة
+                    </label>
+                    <label>
+                        <input type="radio" name="actionType" value="output" required>
+                        <span class="icon">📤</span> إخراج بضاعة
+                    </label>
+                </div>
+                <div class="navigation-buttons">
+                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
+                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="3">
+                <h2><span class="icon">🏷️</span> الخطوة 3: حدد نوع البضاعة</h2>
+                <div class="form-group radio-group item-types">
+                     <label>
+                        <input type="radio" name="itemType" value="A" required>
+                        <span class="item-tag item-a">A</span> النوع أ
+                    </label>
+                     <label>
+                        <input type="radio" name="itemType" value="B" required>
+                         <span class="item-tag item-b">B</span> النوع ب
+                    </label>
+                     <label>
+                        <input type="radio" name="itemType" value="C" required>
+                         <span class="item-tag item-c">C</span> النوع ج
+                    </label>
+                     <label>
+                        <input type="radio" name="itemType" value="D" required>
+                         <span class="item-tag item-d">D</span> النوع د
+                    </label>
+                </div>
+                <div class="navigation-buttons">
+                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
+                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="4">
+                <h2><span class="icon">🔢</span> الخطوة 4: أدخل الكمية</h2>
+                <div class="form-group">
+                    <label for="itemQuantity">الكمية المطلوبة:</label>
+                    <input type="number" id="itemQuantity" name="itemQuantity" required min="1" placeholder="أدخل العدد">
+                </div>
+                <div class="navigation-buttons">
+                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
+                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="5">
+                <h2><span class="icon">✔️</span> الخطوة 5: تأكيد وبدء العملية</h2>
+                <div id="summary" class="summary-box">
+                    <h3>ملخص العملية:</h3>
+                    <p><strong>الزبون:</strong> <span id="summaryName"></span></p>
+                    <p><strong>الهاتف:</strong> <span id="summaryPhone"></span></p>
+                    <p><strong>العملية:</strong> <span id="summaryAction"></span></p>
+                    <p><strong>نوع البضاعة:</strong> <span id="summaryItem"></span></p>
+                    <p><strong>الكمية:</strong> <span id="summaryQuantity"></span></p>
+                </div>
+                 <div id="statusMessage" class="status-message"></div> <div class="navigation-buttons">
+                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-submit"><span class="icon">🚀</span> بدء التنفيذ وإرسال للـ Arduino</button>
+                </div>
+                 <div class="serial-info">
+                     <p><span class="icon">💡</span> ملاحظة: سيتم محاكاة الإرسال. للاتصال الفعلي بـ Arduino عبر المتصفح، ستحتاج إلى استخدام Web Serial API (يتطلب HTTPS ودعم المتصفح).</p>
+                     <button type="button" id="connectSerialBtn" class="btn btn-serial"><span class="icon">🔌</span> محاولة الاتصال بـ Arduino (Web Serial)</button>
+                 </div>
+            </div>
+        </form>
+         <button id="backToWelcomeFromForm" class="btn btn-back"><span class="icon">🏠</span> العودة للشاشة الرئيسية</button>
+    </div>
+
+    <div id="historyScreen" class="screen">
+        <h2><span class="icon">📜</span> سجل العمليات المنفذة</h2>
+        <div class="filter-buttons">
+            <button id="showAllBtn" class="btn btn-filter active">عرض الكل</button>
+            <button id="showRecentBtn" class="btn btn-filter">عرض آخر 5 عمليات</button>
+        </div>
+        <div id="operationsLog" class="log-container">
+            <p>لا توجد عمليات مسجلة حتى الآن.</p>
+        </div>
+        <button id="backToWelcomeFromHistory" class="btn btn-back"><span class="icon">🏠</span> العودة للشاشة الرئيسية</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

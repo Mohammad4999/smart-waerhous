@@ -3,134 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المخزن الذكي - واجهة التحكم</title>
+    <title>المخزن الذكي V5.1 - واجهة الروبوت</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
     <div id="welcomeScreen" class="screen active">
-        <header>
-            <h1><span class="icon">📦</span> المخزن الذكي</h1>
-            <p>واجهة محاكاة أتمتة المستودعات باستخدام Arduino</p>
+        <header class="welcome-header">
+            <i class="fas fa-warehouse fa-3x welcome-icon"></i>
+            <h1>المخزن الذكي  V5.1</h1>
+            <p>واجهة التحكم والمراقبة التفاعلية لروبوت المستودع</p>
         </header>
-        <div class="button-container">
-            <button id="startNewBtn" class="btn btn-primary"><span class="icon">✨</span> بدء عملية جديدة</button>
-            <button id="viewHistoryBtn" class="btn btn-secondary"><span class="icon">📜</span> عرض سجل العمليات</button>
+
+        <div class="main-actions">
+            <button id="startNewBtn" class="btn btn-primary btn-large"><i class="fas fa-plus-circle icon"></i> بدء عملية جديدة</button>
+            <button id="connectionSettingsBtn" class="btn btn-secondary btn-large"><i class="fas fa-wifi icon"></i> إعدادات الاتصال</button>
+            <button id="viewHistoryBtn" class="btn btn-secondary btn-large"><i class="fas fa-history icon"></i> عرض سجل العمليات</button>
+        </div>
+
+        <div class="content-section">
+            <div class="inventory-summary card">
+                <h3><i class="fas fa-boxes-stacked icon"></i> المخزون الحالي (بحد أقصى 4 لكل نوع)</h3>
+                <div class="inventory-grid">
+                    <div>A: <span id="invSummaryA">0</span></div>
+                    <div>B: <span id="invSummaryB">0</span></div>
+                    <div>C: <span id="invSummaryC">0</span></div>
+                    <div>D: <span id="invSummaryD">0</span></div>
+                </div>
             </div>
+
+            <div class="robot-controls card">
+                <h3><i class="fas fa-robot icon"></i> أوامر الروبوت المباشرة</h3>
+                <div class="robot-buttons">
+                    <button id="standbyBtn" class="btn btn-standby"><i class="fas fa-pause-circle icon"></i> استعداد (S)</button>
+                    <button id="sleepBtn" class="btn btn-sleep"><i class="fas fa-power-off icon"></i> سكون (M)</button>
+                </div>
+                <div id="robotCommandStatus" class="status-message small" style="display: none;"></div>
+            </div>
+        </div>
+
+
+
+         <div id="generalStatus" class="status-message" style="display: none; margin-top: 15px;"></div>
+
+         <div class="about-us card">
+             <h4><i class="fas fa-users icon"></i> نبذة عن الموقع </h4>
+             <p>    نظام "المخزن الذكي V5.1" هو واجهة ويب تفاعلية متقدمة تم تطويرها بواسطة محمد جعفر،
+                 تهدف إلى محاكاة إدارة مستودع آلي والتحكم به عن بعد. يتيح النظام إدارة عمليات إدخال وإخراج البضائع بدقة،
+                 تتبع المخزون، تسجيل جميع الحركات، وتصدير التقارير. يتميز النظام بإمكانية الاتصال لاسلكياً بوحدة تحكم
+                 ESP32 (التي تمثل الروبوت)، وهو مربوط بنظام إرسال بريد إلكتروني لإرسال تحذيرات تلقائية عند انخفاض مستويات المخزون،
+                 مما يضمن متابعة فعالة لحالة المستودع.</p>
+         </div>
+
         <footer>
-            <p>تصميم ومحاكاة بواسطة الذكاء الاصطناعي</p>
+            <p>الإصدار 5.1 | التفاعل عبر Wi-Fi مع ESP32</p>
         </footer>
     </div>
 
     <div id="operationScreen" class="screen">
-        <form id="operationForm">
+        <form id="operationForm" novalidate>
             <div class="form-step active-step" data-step="1">
-                <h2><span class="icon">👤</span> الخطوة 1: معلومات الزبون</h2>
-                <div class="form-group">
-                    <label for="customerName">اسم الزبون:</label>
-                    <input type="text" id="customerName" name="customerName" required placeholder="أدخل اسم الزبون">
+                 <h2><i class="fas fa-user-tag icon"></i> الخطوة 1: معلومات المصدر ونوع العملية</h2>
+                <div class="step-content-wrapper">
+                    <div class="customer-form">
+                        <div class="form-group">
+                            <label for="operationNumberDisplay">رقم العملية:</label>
+                            <input type="text" id="operationNumberDisplay" readonly disabled value="سيتم إنشاؤه">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerName">اسم الشركة / الشخص:</label>
+                            <input type="text" id="customerName" name="customerName" required placeholder="أدخل الاسم أو اختر من القائمة">
+                             <div id="customerNameError" class="validation-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerPhone">الهاتف:</label>
+                            <input type="tel" id="customerPhone" name="customerPhone" placeholder="أدخل رقم الهاتف (اختياري)">
+                             </div>
+                        <div class="form-group operation-type-selection">
+                             <label>نوع العملية المطلوبة:</label>
+                             <div class="radio-group-horizontal">
+                                 <label><input type="radio" name="actionType" value="input" required><i class="fas fa-sign-in-alt icon"></i> إدخال بضاعة</label>
+                                 <label><input type="radio" name="actionType" value="output" required><i class="fas fa-sign-out-alt icon"></i> إخراج بضاعة</label>
+                             </div>
+                             <div id="actionTypeError" class="validation-error"></div>
+                        </div>
+                    </div>
+                    <div class="customer-list-sidebar">
+                        <h3><i class="fas fa-users-cog icon"></i> زبائن سابقون</h3>
+                        <p class="sidebar-hint">(اضغط على اسم لملء الحقول)</p>
+                        <ul id="customerList"><li><i>جاري التحميل...</i></li></ul>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="customerPhone">رقم الهاتف:</label>
-                    <input type="tel" id="customerPhone" name="customerPhone" placeholder="أدخل رقم الهاتف (اختياري)">
+                <div class="navigation-buttons reversed">
+                    <button type="button" class="btn prev-btn" disabled> السابق <i class="fas fa-arrow-right icon"></i></button>
+                    <button type="button" class="btn next-btn">التالي <i class="fas fa-arrow-left icon"></i></button>
                 </div>
-                <div class="navigation-buttons">
-                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
-                </div>
+                <button type="button" id="cancelOpBtn1" class="btn btn-link btn-cancel"><i class="fas fa-times-circle icon"></i> إلغاء العملية</button>
             </div>
 
-            <div class="form-step" data-step="2">
-                <h2><span class="icon">↔️</span> الخطوة 2: حدد نوع العملية</h2>
-                <div class="form-group radio-group">
-                    <label>
-                        <input type="radio" name="actionType" value="input" required>
-                        <span class="icon">📥</span> إدخال بضاعة
-                    </label>
-                    <label>
-                        <input type="radio" name="actionType" value="output" required>
-                        <span class="icon">📤</span> إخراج بضاعة
-                    </label>
-                </div>
-                <div class="navigation-buttons">
-                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
-                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="3">
-                <h2><span class="icon">🏷️</span> الخطوة 3: حدد نوع البضاعة</h2>
-                <div class="form-group radio-group item-types">
-                     <label>
-                        <input type="radio" name="itemType" value="A" required>
-                        <span class="item-tag item-a">A</span> النوع أ
-                    </label>
-                     <label>
-                        <input type="radio" name="itemType" value="B" required>
-                         <span class="item-tag item-b">B</span> النوع ب
-                    </label>
-                     <label>
-                        <input type="radio" name="itemType" value="C" required>
-                         <span class="item-tag item-c">C</span> النوع ج
-                    </label>
-                     <label>
-                        <input type="radio" name="itemType" value="D" required>
-                         <span class="item-tag item-d">D</span> النوع د
-                    </label>
-                </div>
-                <div class="navigation-buttons">
-                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
-                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="4">
-                <h2><span class="icon">🔢</span> الخطوة 4: أدخل الكمية</h2>
-                <div class="form-group">
-                    <label for="itemQuantity">الكمية المطلوبة:</label>
-                    <input type="number" id="itemQuantity" name="itemQuantity" required min="1" placeholder="أدخل العدد">
-                </div>
-                <div class="navigation-buttons">
-                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
-                    <button type="button" class="btn next-btn">التالي <span class="icon">➡️</span></button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="5">
-                <h2><span class="icon">✔️</span> الخطوة 5: تأكيد وبدء العملية</h2>
-                <div id="summary" class="summary-box">
-                    <h3>ملخص العملية:</h3>
-                    <p><strong>الزبون:</strong> <span id="summaryName"></span></p>
-                    <p><strong>الهاتف:</strong> <span id="summaryPhone"></span></p>
-                    <p><strong>العملية:</strong> <span id="summaryAction"></span></p>
-                    <p><strong>نوع البضاعة:</strong> <span id="summaryItem"></span></p>
-                    <p><strong>الكمية:</strong> <span id="summaryQuantity"></span></p>
-                </div>
-                 <div id="statusMessage" class="status-message"></div> <div class="navigation-buttons">
-                    <button type="button" class="btn prev-btn"><span class="icon">⬅️</span> السابق</button>
-                    <button type="submit" id="submitBtn" class="btn btn-primary btn-submit"><span class="icon">🚀</span> بدء التنفيذ وإرسال للـ Arduino</button>
-                </div>
-                 <div class="serial-info">
-                     <p><span class="icon">💡</span> ملاحظة: سيتم محاكاة الإرسال. للاتصال الفعلي بـ Arduino عبر المتصفح، ستحتاج إلى استخدام Web Serial API (يتطلب HTTPS ودعم المتصفح).</p>
-                     <button type="button" id="connectSerialBtn" class="btn btn-serial"><span class="icon">🔌</span> محاولة الاتصال بـ Arduino (Web Serial)</button>
+            <div class="form-step" data-step="2" data-type="input">
+                 <h2><i class="fas fa-qrcode icon"></i> الخطوة 2: مسح البضاعة الواردة (A, B, C, D)</h2>
+                 <p>المخزون الأقصى 4 لكل نوع. سيتم تطبيق تأخير بعد كل مسح ناجح.</p>
+                 <div class="scan-controls">
+                     <div class="form-group scan-delay-group">
+                         <label for="scanDelayInput">زمن التأخير (ثواني):</label>
+                         <input type="number" id="scanDelayInput" value="10" min="1" max="60">
+                         <button type="button" id="saveDelayBtn" title="حفظ زمن التأخير" class="btn btn-sm btn-secondary"><i class="fas fa-save"></i></button>
+                     </div>
+                     <div class="form-group qr-input-group">
+                         <label for="qrInput">حقل السكانر:</label>
+                         <input type="text" id="qrInput" placeholder="...امسح الرمز هنا...">
+                         <div id="scanStatus" class="status-message small" style="display: none;"></div>
+                     </div>
                  </div>
+                 <div class="scanned-items-section">
+                     <h3><i class="fas fa-clipboard-list icon"></i> الأصناف الممسوحة حالياً:</h3>
+                     <ul id="scannedItemsList"><li><i>لم يتم مسح أي أصناف بعد.</i></li></ul>
+                     <p>المجموع: <span id="scannedCount">0</span></p>
+                 </div>
+                 <div class="navigation-buttons reversed">
+                    <button type="button" id="finishInputBtn" class="btn btn-success"><i class="fas fa-check-circle icon"></i> إنهاء وحفظ</button>
+                    <button type="button" class="btn prev-btn"><i class="fas fa-arrow-right icon"></i> السابق</button>
+                 </div>
+                 <button type="button" id="cancelOpBtn2i" class="btn btn-link btn-cancel"><i class="fas fa-times-circle icon"></i> إلغاء العملية</button>
+            </div>
+
+            <div class="form-step" data-step="2" data-type="output">
+                 <h2><i class="fas fa-tasks icon"></i> الخطوة 2: تحديد الكمية المطلوبة (0-4 لكل نوع)</h2>
+                 <div id="outputError" class="status-message error" style="display: none;"></div>
+                 <div class="step-content-wrapper">
+                     <div class="output-request-area">
+                         <div class="output-request-grid">
+                             <div class="form-group item-request"><label for="quantityA"><span class="item-tag item-a">A</span></label><input type="number" id="quantityA" name="quantityA" min="0" max="4" value="0"><span class="stock-info">(متاح: <span id="stockA">0</span>)</span></div>
+                             <div class="form-group item-request"><label for="quantityB"><span class="item-tag item-b">B</span></label><input type="number" id="quantityB" name="quantityB" min="0" max="4" value="0"><span class="stock-info">(متاح: <span id="stockB">0</span>)</span></div>
+                             <div class="form-group item-request"><label for="quantityC"><span class="item-tag item-c">C</span></label><input type="number" id="quantityC" name="quantityC" min="0" max="4" value="0"><span class="stock-info">(متاح: <span id="stockC">0</span>)</span></div>
+                             <div class="form-group item-request"><label for="quantityD"><span class="item-tag item-d">D</span></label><input type="number" id="quantityD" name="quantityD" min="0" max="4" value="0"><span class="stock-info">(متاح: <span id="stockD">0</span>)</span></div>
+                         </div>
+                         <p><strong>المجموع الكلي المطلوب: <span id="totalRequested">0</span> / 16</strong></p>
+                         <div id="outputSendStatus" class="status-message" style="display: none;"></div>
+                     </div>
+                     <div class="last-input-helper">
+                         <h3><i class="fas fa-history icon"></i> مساعدة: آخر عملية إدخال</h3>
+                         <div id="lastInputInfo">
+                             <p><i>لم يتم العثور على عمليات إدخال سابقة.</i></p>
+                         </div>
+                         <button type="button" id="fillFromLastInputBtn" class="btn btn-sm btn-secondary" disabled><i class="fas fa-magic icon"></i> ملء تلقائي</button>
+                     </div>
+                 </div>
+                 <div class="navigation-buttons reversed">
+                    <button type="button" id="sendOutputBtn" class="btn btn-primary"><i class="fas fa-paper-plane icon"></i> إرسال الطلب للروبوت</button>
+                     <button type="button" class="btn prev-btn"><i class="fas fa-arrow-right icon"></i> السابق</button>
+                 </div>
+                 <button type="button" id="cancelOpBtn2o" class="btn btn-link btn-cancel"><i class="fas fa-times-circle icon"></i> إلغاء العملية</button>
             </div>
         </form>
-         <button id="backToWelcomeFromForm" class="btn btn-back"><span class="icon">🏠</span> العودة للشاشة الرئيسية</button>
     </div>
 
     <div id="historyScreen" class="screen">
-        <h2><span class="icon">📜</span> سجل العمليات المنفذة</h2>
-        <div class="filter-buttons">
-            <button id="showAllBtn" class="btn btn-filter active">عرض الكل</button>
-            <button id="showRecentBtn" class="btn btn-filter">عرض آخر 5 عمليات</button>
+        <div id="historyContent" style="display: none;">
+            <h2><i class="fas fa-history icon"></i> سجل العمليات المنفذة</h2>
+            <div class="history-controls card">
+                <button id="exportSummaryCsvBtn" title="تنزيل ملف CSV يلخص كمية كل صنف لكل عملية" class="btn btn-info"><i class="fas fa-file-alt icon"></i> تصدير ملخص</button>
+                <button id="exportDetailedCsvBtn" title="تنزيل ملف CSV يحتوي على تفاصيل كل حركة لكل عملية" class="btn btn-success"><i class="fas fa-file-csv icon"></i> تصدير تفصيلي</button>
+                <button id="changePasswordBtn" title="تغيير كلمة مرور الوصول للسجلات" class="btn btn-warning"><i class="fas fa-key icon"></i> تغيير كلمة المرور</button>
+                <button id="deleteHistoryBtn" title="حذف جميع العمليات والسجلات نهائياً" class="btn btn-danger"><i class="fas fa-trash-alt icon"></i> حذف كل السجلات</button>
+            </div>
+            <div id="operationsLog" class="log-container card">
+                <p>جاري تحميل السجل...</p>
+            </div>
+            <button id="backToWelcomeFromHistory" class="btn btn-back"><i class="fas fa-home icon"></i> العودة للشاشة الرئيسية</button>
         </div>
-        <div id="operationsLog" class="log-container">
-            <p>لا توجد عمليات مسجلة حتى الآن.</p>
-        </div>
-        <button id="backToWelcomeFromHistory" class="btn btn-back"><span class="icon">🏠</span> العودة للشاشة الرئيسية</button>
     </div>
 
+    <div id="passwordPromptOverlay" class="overlay">
+         <div class="password-box card">
+             <h3><i class="fas fa-lock icon"></i> الوصول إلى السجلات</h3>
+             <p>الرجاء إدخال كلمة المرور لعرض أو إدارة السجلات.</p>
+             <input type="password" id="passwordInput" placeholder="كلمة المرور">
+             <button id="submitPasswordBtn" class="btn btn-primary">دخول</button>
+             <div id="passwordError" class="validation-error"></div>
+             <button id="backToWelcomeFromPwd" class="btn btn-link btn-cancel" style="margin-top:10px;">العودة للشاشة الرئيسية</button>
+         </div>
+    </div>
     <script src="script.js"></script>
+
+<div id="connectionSettingsOverlay" class="overlay">
+    <div class="settings-box card">
+        <h3><i class="fas fa-wifi icon"></i> إعدادات اتصال الروبوت</h3>
+        <div class="form-group">
+            <label for="espIpInput">عنوان IP للروبوت:</label>
+            <input type="text" id="espIpInput" placeholder="مثال: 192.168.1.100">
+        </div>
+        <div class="form-group">
+            <label for="espPortInput">منفذ الاتصال (اختياري):</label>
+            <input type="text" id="espPortInput" placeholder="الافتراضي: 80">
+        </div>
+        <div id="connectionSettingsStatus" class="status-message small" style="display: none;"></div>
+        <div class="settings-buttons">
+            <button id="saveConnectionSettingsBtn" class="btn btn-primary">حفظ الإعدادات</button>
+            <button id="cancelConnectionSettingsBtn" class="btn btn-link btn-cancel">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+
+
 </body>
 </html>
